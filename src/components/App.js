@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { addExpenses, deleteExpenses, getExpensesData } from "../services";
 import { theme } from "../styles";
 import { AddExpenseContainer } from "./AddExpense";
+import { ExpenseChart } from "./ExpenseChart";
 import { ExpensesContainer } from './ExpenseList';
 import { FilterExpenses } from "./Filter/FilterExpenses";
 
@@ -82,14 +83,15 @@ const App = () => {
       <Container maxWidth="lg">
         <Grid container spacing={3}>
           <Grid item xs={12}>
+            <ExpenseChart />
           </Grid>
           <Grid item xs={12}>
             <FilterExpenses filterData={filterData} selecterYear={selectedFilterYear} getFilterYear={handleFilterChange}/>
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={12} md={4}>
             <AddExpenseContainer sendAddedExpense={addExpense} />
           </Grid>
-          <Grid item xs={12} sm={8}>
+          <Grid item xs={12} sm={12} md={8}>
             <ExpensesContainer expenses={filteredExpenses} getDeletedExpense={deleteSelectedExpense} />
           </Grid>
         </Grid>
