@@ -1,52 +1,25 @@
 import { Container, Grid, ThemeProvider } from "@material-ui/core";
 import { useEffect, useState } from "react";
-import { addExpenses, deleteExpenses, getExpensesData } from "../services";
+import { addExpenses, deleteExpenses, getExpensesData } from "../api";
+import { applyFilter, deleteExpense, getChartData, getFilterData } from "../service";
 import { theme } from "../styles";
 import { AddExpenseContainer } from "./AddExpense";
 import { ExpenseChart } from "./ExpenseChart";
-import { ExpensesContainer } from './ExpenseList';
-import { FilterExpenses } from "./Filter/FilterExpenses";
-
-const getFilterData = expenses => {
-  let years = [];
-  
-  for (const expense of expenses) {
-    const expenseDate = new Date(expense.date);
-    const expenseYear = expenseDate.getFullYear();
-
-    if (years.indexOf(expenseYear) === -1) {
-      years.push(expenseYear);
-    }
-  }
-
-  return years.sort();
-};
-
-const applyFilter = (filterYear, expenses) => {
-  if (+filterYear === -1) return [...expenses];
-
-  return expenses.filter(expense => {
-    const expenseDate = new Date(expense.date);
-
-    return +filterYear === +expenseDate.getFullYear();
-  });
-};
-
-const deleteExpense = (id, expenses) => {
-  return expenses.filter(expense => expense.id !== id);
-};
+import { ExpensesContainer } from "./ExpenseList";
+import { FilterExpenses } from "./Filter";
 
 const App = () => {
   const [expenses, setExpenses] = useState([]);
   const [filteredExpenses, setFilteredExpenses] = useState([...expenses]);
   const [filterData, setFilterData] = useState([]);
   const [selectedFilterYear, setSelectedFilterYear] = useState(-1);
+  const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
-    async function setExpenseValue () {
+    async function setExpenseValue() {
       setExpenses(await getExpensesData());
     }
-    
+
     setExpenseValue();
   }, []);
 
@@ -55,49 +28,58 @@ const App = () => {
   }, [expenses]);
 
   useEffect(() => {
-    setFilteredExpenses(applyFilter(selectedFilterYear, expenses));
+    const filteredData = applyFilter(selectedFilterYear, expenses);
+    setFilteredExpenses(filteredData);
+    setChartData(getChartData(filteredData, selectedFilterYear));
   }, [selectedFilterYear, expenses]);
 
-  const addExpense = newExpense => {
-    console.log(newExpense);
-    setExpenses(prevExpenses => {
+  const addExpense = (newExpense) => {
+    setExpenses((prevExpenses) => {
       return [newExpense, ...prevExpenses];
     });
     addExpenses(newExpense);
   };
 
-  const deleteSelectedExpense = id => {
-    setExpenses(prevExpenses => {
+  const deleteSelectedExpense = (id) => {
+    setExpenses((prevExpenses) => {
       return deleteExpense(id, prevExpenses);
     });
 
     deleteExpenses(id);
   };
 
-  const handleFilterChange = filterYear => {
+  const handleFilterChange = (filterYear) => {
     setSelectedFilterYear(filterYear);
   };
 
   return (
-    <ThemeProvider theme = {theme}>
+    <ThemeProvider theme={theme}>
       <Container maxWidth="lg">
         <Grid container spacing={3}>
           <Grid item xs={12}>
-            <ExpenseChart />
+            <ExpenseChart chartData={chartData} />
           </Grid>
           <Grid item xs={12}>
-            <FilterExpenses filterData={filterData} selecterYear={selectedFilterYear} getFilterYear={handleFilterChange}/>
+            <FilterExpenses
+              filterData={filterData}
+              selecterYear={selectedFilterYear}
+              getFilterYear={handleFilterChange}
+            />
           </Grid>
           <Grid item xs={12} sm={12} md={4}>
             <AddExpenseContainer sendAddedExpense={addExpense} />
           </Grid>
           <Grid item xs={12} sm={12} md={8}>
-            <ExpensesContainer expenses={filteredExpenses} getDeletedExpense={deleteSelectedExpense} />
+            <ExpensesContainer
+              expenses={filteredExpenses}
+              getDeletedExpense={deleteSelectedExpense}
+              updateExpenses={setExpenses}
+            />
           </Grid>
         </Grid>
-      </Container> 
+      </Container>
     </ThemeProvider>
   );
-}
+};
 
 export default App;

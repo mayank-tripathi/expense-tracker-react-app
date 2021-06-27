@@ -6,7 +6,7 @@ import {
   Button,
   ButtonGroup
 } from "@material-ui/core";
-import HighlightOffIcon from "@material-ui/icons/HighlightOff";
+import DeleteIcon from '@material-ui/icons/Delete';
 import MonetizationOnIcon from "@material-ui/icons/MonetizationOn";
 import EditIcon from '@material-ui/icons/Edit';
 import { CalendarDate } from "./CalendarDate";
@@ -20,7 +20,7 @@ export const ExpenseTile = (props) => {
   };
 
   return (
-    <Box mb={2}>
+    <Box mb={props.isLast ? 0 : 2}>
       <Paper>
         <Box>
           <Grid container spacing={0} direction="row">
@@ -37,7 +37,7 @@ export const ExpenseTile = (props) => {
               spacing={0}
               direction="row"
               justify="center"
-              alignItems="center"
+              alignItems="flex-end"
             >
               <Grid item xs={12} sm={8} md={9}>
                 <Box p={2}>
@@ -68,7 +68,7 @@ export const ExpenseTile = (props) => {
                 <ButtonGroup variant="text" fullWidth={true}>
                   <Button
                     color="secondary"
-                    // onClick={() => deleteSelectedExpense(props.id)}
+                    onClick={() => props.editHandler(props)}
                   >
                     <EditIcon />
                   </Button>
@@ -76,7 +76,7 @@ export const ExpenseTile = (props) => {
                     color="secondary"
                     onClick={() => deleteSelectedExpense(props.id)}
                   >
-                    <HighlightOffIcon />
+                    <DeleteIcon />
                   </Button>
                 </ButtonGroup>
               </Grid>
